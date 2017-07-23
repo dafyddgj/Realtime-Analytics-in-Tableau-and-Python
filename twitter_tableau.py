@@ -6,15 +6,25 @@ from tweepy import API
 from tweepy.streaming import StreamListener
 import csv
 import json
-from keys import keys
 import os
-import dataextract as tde
+# download from https://onlinehelp.tableau.com/current/api/sdk/en-us/help.htm#SDK/tableau_sdk_installing.htm
+import tableausdk.Extract as data
+import tableausdk.Types as types
 import re
+import sys
 from datetime import datetime
 from textblob import TextBlob
 import time
 
 # put your keys here. Get them by registering an app on dev.twitter.com
+keys = {
+    'screen_name':'begahtan',
+    'consumer_key': 'JCIxDA6kzvUa0KGdJqmXVjdMH',
+    'consumer_secret': 'raC1O9p93O6HgchX5XHAi7LtLiYHZLNJ2WcvRRc8bA3zU19Vbq',
+    'access_token': '730632422786777089-EqzoJ6wV3mVVmfQJTdu4dRHkj632vcd',
+    'access_token_secret': '566GgwcjCx5pHAOyboQL9G8yIHe6MzPUjmPTHcRBvFa6p'
+}
+
 SCREEN_NAME = keys['screen_name']
 CONSUMER_KEY = keys['consumer_key']
 CONSUMER_SECRET = keys['consumer_secret']
@@ -22,7 +32,7 @@ ACCESS_TOKEN = keys['access_token']
 ACCESS_TOKEN_SECRET = keys['access_token_secret']
 
 # this is the term we will search for on twitter
-TRACK_TERM = "#win"
+TRACK_TERM = "#SundayFunday"
 
 # some ugly global variables
 tweet_count = 0
@@ -110,6 +120,9 @@ def extract(file_name):
 
     global WORKING_DIRECTORY, TRACK_TERM
 
+    if not os.path.exists(WORKING_DIRECTORY + '/extract/'):
+        os.makedirs(WORKING_DIRECTORY + '/extract/')
+
     from_path = WORKING_DIRECTORY + '/' + file_name
     to_path = WORKING_DIRECTORY + '/extract/' + file_name
 
@@ -118,20 +131,20 @@ def extract(file_name):
     os.chdir(WORKING_DIRECTORY + '/extract')
 
     # define the extract
-    with tde.Extract(TRACK_TERM + '.tde') as extract:
+    with data.Extract(TRACK_TERM + '.tde') as extract:
 
-        tableDef = tde.TableDefinition()
+        tableDef = data.TableDefinition()
 
         # define the columns and the data types in the extract
-        tableDef.addColumn('lang',          tde.Type.CHAR_STRING) #0
-        tableDef.addColumn('sentiment',     tde.Type.DOUBLE)      #1
-        tableDef.addColumn('country',       tde.Type.CHAR_STRING) #2
-        tableDef.addColumn('created_at',    tde.Type.DATETIME)    #3
-        tableDef.addColumn('tweet_text',    tde.Type.CHAR_STRING) #4
-        tableDef.addColumn('Longitude',     tde.Type.DOUBLE)      #5
-        tableDef.addColumn('source',        tde.Type.CHAR_STRING) #6
-        tableDef.addColumn('user',          tde.Type.CHAR_STRING) #7
-        tableDef.addColumn('Latitude',      tde.Type.DOUBLE)      #8
+        tableDef.addColumn('lang',          types.Type.CHAR_STRING) #0
+        tableDef.addColumn('sentiment',     types.Type.DOUBLE)      #1
+        tableDef.addColumn('country',       types.Type.CHAR_STRING) #2
+        tableDef.addColumn('created_at',    types.Type.DATETIME)    #3
+        tableDef.addColumn('tweet_text',    types.Type.CHAR_STRING) #4
+        tableDef.addColumn('Longitude',     types.Type.DOUBLE)      #5
+        tableDef.addColumn('source',        types.Type.CHAR_STRING) #6
+        tableDef.addColumn('user',          types.Type.CHAR_STRING) #7
+        tableDef.addColumn('Latitude',      types.Type.DOUBLE)      #8
 
         table = None
 
@@ -144,13 +157,12 @@ def extract(file_name):
             print "Appending to an existing extract"
             table = extract.openTable('Extract')
 
-        new_row = tde.Row(tableDef)
+        new_row = data.Row(tableDef)
 
         # read the data from the CSV into the extract row object
         with open(file_name, 'r') as inf:
             reader = csv.DictReader(inf, delimiter=',', lineterminator='\n')
             for row in reader:
-
                 # insert data into the row object in the correct order as defined above
                 new_row.setCharString(0, row['lang'])
 
@@ -222,9 +234,9 @@ class StdOutListener( StreamListener ):
         if tweet_count % 10 == 0:
             print ".",
 
-        # after we capture 100 tweets go ahead and write them to the extract
-        if tweet_count % 100 == 0:
-            print "\rcaptured %s tweets in file #%s" % (50, str(file_number))
+        # after we capture 50 tweets go ahead and write them to the extract
+        if tweet_count % 20 == 0:
+            print "\rcaptured %s tweets in file #%s" % (20, str(file_number))
             file_number += 1
             extract(current_file)
 
