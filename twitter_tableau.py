@@ -18,11 +18,11 @@ import time
 
 # put your keys here. Get them by registering an app on dev.twitter.com
 keys = {
-    'screen_name':'begahtan',
-    'consumer_key': 'JCIxDA6kzvUa0KGdJqmXVjdMH',
-    'consumer_secret': 'raC1O9p93O6HgchX5XHAi7LtLiYHZLNJ2WcvRRc8bA3zU19Vbq',
-    'access_token': '730632422786777089-EqzoJ6wV3mVVmfQJTdu4dRHkj632vcd',
-    'access_token_secret': '566GgwcjCx5pHAOyboQL9G8yIHe6MzPUjmPTHcRBvFa6p'
+    'screen_name':'',
+    'consumer_key': '',
+    'consumer_secret': '',
+    'access_token': '',
+    'access_token_secret': ''
 }
 
 SCREEN_NAME = keys['screen_name']
